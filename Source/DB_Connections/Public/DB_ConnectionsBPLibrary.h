@@ -4,6 +4,10 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Engine.h"
+
+// Connection Functions.
+#include "SQLiteDatabase.h"
+
 #include "DB_ConnectionsBPLibrary.generated.h"
 
 /* 
@@ -23,6 +27,16 @@
 *	For more info on custom blueprint nodes visit documentation:
 *	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
 */
+
+UCLASS(BlueprintType)
+class DB_CONNECTIONS_API USQLite_Connection : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	FSQLiteDatabase* SQLiteDB;
+};
 
 UENUM()
 enum SQLiteOpenType
@@ -52,16 +66,22 @@ class UDB_ConnectionsBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Columns Names", ToolTip = "Description", Keywords = "sqlite,column,names,get"), Category = "Device Infos")
-	static void SQLiteGetColumnsNames(const FString DB_Path, const FString TableName, TArray<FString>& OutColumnsNames);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Open", ToolTip = "Description", Keywords = "sqlite, open"), Category = "DB Connections")
+	static bool SQLiteOpen(const FString DB_Path, TEnumAsByte<SQLiteOpenType> OpenType, USQLite_Connection*& OutSQLiteConnection);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Single Row Value", ToolTip = "Description", Keywords = "sqlite,column,values,get"), Category = "Device Infos")
-	static void SQLiteGetSingleRowValue(const FString DB_Path, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Close", ToolTip = "Description", Keywords = "sqlite, close"), Category = "DB Connections")
+	static void SQLiteClose(USQLite_Connection* InSQLiteConnection);
+	
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Columns Names", ToolTip = "Description", Keywords = "sqlite,column,names,get"), Category = "DB Connections")
+	static bool SQLiteGetColumnsNames(USQLite_Connection* InSQLiteConnection, const FString TableName, TArray<FString>& OutColumnsNames);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get All Row Values", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite,column,values,get"), Category = "Device Infos")
-	static void SQLiteGetAllRowValues(const FString DB_Path, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Single Row Value", ToolTip = "Description", Keywords = "sqlite,column,values,get"), Category = "DB Connections")
+	static bool SQLiteGetSingleRowValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Table Contents", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite,column,values,get"), Category = "Device Infos")
-	static void SQLiteGetAllTableContents(const FString DB_Path, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get All Row Values", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite,column,values,get"), Category = "DB Connections")
+	static bool SQLiteGetAllRowValues(USQLite_Connection* InSQLiteConnection, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Table Contents", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite,column,values,get"), Category = "DB Connections")
+	static bool SQLiteGetAllTableContents(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents);
 
 };

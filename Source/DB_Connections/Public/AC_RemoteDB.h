@@ -35,5 +35,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Open Remote Database", ToolTip = "Exprimental !", Keywords = "remote,database,open"), Category = "DB Connections")
 	virtual bool RemoteDataBaseOpen(const FString RemoteIP, const FString ConnectionString, const FString RemoteConnectionStringOverride);
-		
+
 };

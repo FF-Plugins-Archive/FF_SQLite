@@ -17,90 +17,161 @@ UDB_ConnectionsBPLibrary::UDB_ConnectionsBPLibrary(const FObjectInitializer& Obj
 
 }
 
-void UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(const FString DB_Path, const FString TableName, TArray<FString>& OutColumnsNames)
+bool UDB_ConnectionsBPLibrary::SQLiteOpen(const FString DB_Path, TEnumAsByte<SQLiteOpenType> OpenType, USQLite_Connection*& OutSQLiteConnection)
 {
-    FSQLiteDatabase* SQLiteDB = new FSQLiteDatabase();
-    SQLiteDB->Open(*DB_Path, ESQLiteDatabaseOpenMode::ReadOnly);
+    ESQLiteDatabaseOpenMode OpenMode = ESQLiteDatabaseOpenMode::ReadOnly;
 
-    if (SQLiteDB->IsValid() == true)
+    switch (OpenType)
     {
-        const FString GetColumnNamesQuery = TEXT("select * from ") + TableName;
-        FSQLitePreparedStatement LoadStatement;
-        LoadStatement.Create(*SQLiteDB, *GetColumnNamesQuery, ESQLitePreparedStatementFlags::Persistent);
+    case ReadOnly:
+        OpenMode = ESQLiteDatabaseOpenMode::ReadOnly;
+        break;
 
-        OutColumnsNames = LoadStatement.GetColumnNames();
+    case ReadWrite:
+        OpenMode = ESQLiteDatabaseOpenMode::ReadWrite;
+        break;
 
-        LoadStatement.ClearBindings();
-        LoadStatement.Destroy();
-        SQLiteDB->Close();
-        delete SQLiteDB;
+    case ReadWriteCreate:
+        OpenMode = ESQLiteDatabaseOpenMode::ReadWriteCreate;
+        break;
+    
+    default:
+        OpenMode = ESQLiteDatabaseOpenMode::ReadOnly;
+        break;
+    }
+    
+    USQLite_Connection* SQLiteConnection = NewObject<USQLite_Connection>();
+    SQLiteConnection->SQLiteDB = new FSQLiteDatabase();
+    SQLiteConnection->SQLiteDB->Open(*DB_Path, OpenMode);
+    
+    if (SQLiteConnection->SQLiteDB->IsValid() == true)
+    {
+        OutSQLiteConnection = SQLiteConnection;
+        return SQLiteConnection->SQLiteDB->IsValid();
+    }
+
+    else
+    {
+        return SQLiteConnection->SQLiteDB->IsValid();
     }
 }
 
-void UDB_ConnectionsBPLibrary::SQLiteGetSingleRowValue(const FString DB_Path, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue)
+void UDB_ConnectionsBPLibrary::SQLiteClose(USQLite_Connection* InSQLiteConnection)
 {
-    FSQLiteDatabase* SQLiteDB = new FSQLiteDatabase();
-    SQLiteDB->Open(*DB_Path, ESQLiteDatabaseOpenMode::ReadOnly);
-
-    if (SQLiteDB->IsValid() == true)
+    if (InSQLiteConnection->IsValidLowLevel() == true)
     {
-        const FString GetColumnValuesQuery = TEXT("SELECT * from ") + TableName + TEXT(" WHERE ") + IDColumn + TEXT(" = ") + IDIndex;
-        FSQLitePreparedStatement LoadStatement;
-        LoadStatement.Create(*SQLiteDB, *GetColumnValuesQuery, ESQLitePreparedStatementFlags::Persistent);
-
-        const FString IDBinding = TEXT("$") + IDColumn;
-        LoadStatement.SetBindingValueByName(*IDBinding, IDIndex);
-        LoadStatement.Step();
-        LoadStatement.GetColumnValueByName(*ColumnName, ColumnValue);
-
-        LoadStatement.ClearBindings();
-        LoadStatement.Destroy();
-        SQLiteDB->Close();
-        delete SQLiteDB;
+        InSQLiteConnection->SQLiteDB->Close();
+        delete InSQLiteConnection->SQLiteDB;
     }
 }
 
-void UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(const FString DB_Path, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues)
+bool UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(USQLite_Connection* InSQLiteConnection, const FString TableName, TArray<FString>& OutColumnsNames)
 {
-    FSQLiteDatabase* SQLiteDB = new FSQLiteDatabase();
-    SQLiteDB->Open(*DB_Path, ESQLiteDatabaseOpenMode::ReadOnly);
-
-    if (SQLiteDB->IsValid() == true)
+    if (InSQLiteConnection->IsValidLowLevel() == true)
     {
-        FSQLitePreparedStatement CustomQueryStatement;
-        CustomQueryStatement.Create(*SQLiteDB, *Query, ESQLitePreparedStatementFlags::Persistent);
-
-        FString EachColumnValue;
-        while (CustomQueryStatement.Step() == ESQLitePreparedStatementStepResult::Row)
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
-            CustomQueryStatement.GetColumnValueByName(*ColumnName, EachColumnValue);
-            ColumnValues.Add(EachColumnValue);
+            const FString GetColumnNamesQuery = TEXT("select * from ") + TableName;
+            FSQLitePreparedStatement LoadStatement;
+            LoadStatement.Create(*InSQLiteConnection->SQLiteDB, *GetColumnNamesQuery, ESQLitePreparedStatementFlags::Persistent);
+
+            OutColumnsNames = LoadStatement.GetColumnNames();
+
+            LoadStatement.ClearBindings();
+            LoadStatement.Destroy();
+
+            return true;
         }
 
-        CustomQueryStatement.ClearBindings();
-        CustomQueryStatement.Destroy();
-        SQLiteDB->Close();
-        delete SQLiteDB;
+        return false;
     }
+
+    return false;
 }
 
-void UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(const FString DB_Path, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents)
+bool UDB_ConnectionsBPLibrary::SQLiteGetSingleRowValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue)
 {
-    // Create SQLite query.
-    const FString Query = TEXT("SELECT * from ") + TableName + TEXT(" WHERE ") + QueryCondition;
-
-    // Get column names.
-    TArray<FString> ColumnNames;
-    UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(DB_Path, TableName, ColumnNames);
-
-    FRowValuesStruct STR_RowValues;
-    for (int32 ColumnIndex = 0; ColumnIndex < ColumnNames.Num(); ColumnIndex++)
+    if (InSQLiteConnection->IsValidLowLevel() == true)
     {
-        TArray<FString> RowValues;
-        UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(DB_Path, Query, ColumnNames[ColumnIndex], RowValues);
-        STR_RowValues.ColumnValues = RowValues;
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
+        {
+            const FString GetColumnValuesQuery = TEXT("SELECT * from ") + TableName + TEXT(" WHERE ") + IDColumn + TEXT(" = ") + IDIndex;
+            FSQLitePreparedStatement LoadStatement;
+            LoadStatement.Create(*InSQLiteConnection->SQLiteDB, *GetColumnValuesQuery, ESQLitePreparedStatementFlags::Persistent);
 
-        TableContents.Add(ColumnNames[ColumnIndex], STR_RowValues);
+            const FString IDBinding = TEXT("$") + IDColumn;
+            LoadStatement.SetBindingValueByName(*IDBinding, IDIndex);
+            LoadStatement.Step();
+            LoadStatement.GetColumnValueByName(*ColumnName, ColumnValue);
+
+            LoadStatement.ClearBindings();
+            LoadStatement.Destroy();
+
+            return true;
+        }
+
+        return false;
     }
+
+    return false;
 }
 
+bool UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(USQLite_Connection* InSQLiteConnection, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues)
+{
+    if (InSQLiteConnection->IsValidLowLevel() == true)
+    {
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
+        {
+            FSQLitePreparedStatement CustomQueryStatement;
+            CustomQueryStatement.Create(*InSQLiteConnection->SQLiteDB, *Query, ESQLitePreparedStatementFlags::Persistent);
+
+            FString EachColumnValue;
+            while (CustomQueryStatement.Step() == ESQLitePreparedStatementStepResult::Row)
+            {
+                CustomQueryStatement.GetColumnValueByName(*ColumnName, EachColumnValue);
+                ColumnValues.Add(EachColumnValue);
+            }
+
+            CustomQueryStatement.ClearBindings();
+            CustomQueryStatement.Destroy();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return false;
+}
+
+bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents)
+{
+    if (InSQLiteConnection->IsValidLowLevel() == true)
+    {
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
+        {
+            // Create SQLite query.
+            const FString Query = TEXT("SELECT * from ") + TableName + TEXT(" WHERE ") + QueryCondition;
+
+            // Get column names.
+            TArray<FString> ColumnNames;
+            UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(InSQLiteConnection, TableName, ColumnNames);
+
+            FRowValuesStruct STR_RowValues;
+            for (int32 ColumnIndex = 0; ColumnIndex < ColumnNames.Num(); ColumnIndex++)
+            {
+                TArray<FString> RowValues;
+                UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(InSQLiteConnection, Query, ColumnNames[ColumnIndex], RowValues);
+                STR_RowValues.ColumnValues = RowValues;
+
+                TableContents.Add(ColumnNames[ColumnIndex], STR_RowValues);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return false;
+}
