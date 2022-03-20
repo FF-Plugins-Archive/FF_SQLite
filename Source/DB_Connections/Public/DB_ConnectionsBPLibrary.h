@@ -72,16 +72,28 @@ class UDB_ConnectionsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Close", ToolTip = "Description", Keywords = "sqlite, close"), Category = "DB Connections")
 	static void SQLiteClose(USQLite_Connection* InSQLiteConnection);
 	
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Columns Names", ToolTip = "Description", Keywords = "sqlite,column,names,get"), Category = "DB Connections")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Columns Names", ToolTip = "Description", Keywords = "sqlite, column, names, get"), Category = "DB Connections")
 	static bool SQLiteGetColumnsNames(USQLite_Connection* InSQLiteConnection, const FString TableName, TArray<FString>& OutColumnsNames);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Single Row Value", ToolTip = "Description", Keywords = "sqlite,column,values,get"), Category = "DB Connections")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Single Row Value", ToolTip = "Description", Keywords = "sqlite, column, values, get"), Category = "DB Connections")
 	static bool SQLiteGetSingleRowValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get All Row Values", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite,column,values,get"), Category = "DB Connections")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get All Row Values", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite, column, values, get"), Category = "DB Connections")
 	static bool SQLiteGetAllRowValues(USQLite_Connection* InSQLiteConnection, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Table Contents", ToolTip = "Sample: select * from repository where id > 0", Keywords = "sqlite,column,values,get"), Category = "DB Connections")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Get Table Contents", ToolTip = "Description.", Keywords = "sqlite, column, values, get"), Category = "DB Connections")
 	static bool SQLiteGetAllTableContents(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Write Value", ToolTip = "Description.", Keywords = "sqlite, write, value"), Category = "DB Connections")
+	static bool SQLiteWriteValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName, const FString InValue);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Create Column", ToolTip = "Description.", Keywords = "sqlite, create, column"), Category = "DB Connections")
+	static bool SQLiteCreateColumn(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "SQLite Create Table", ToolTip = "Description.", Keywords = "sqlite, create, table"), Category = "DB Connections")
+	static bool SQLiteCreateTable(USQLite_Connection* InSQLiteConnection, const FString TableName);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Helper SQLite Create DB", ToolTip = "Don't use normalized UE4 paths. Use Windows paths such as \\", Keywords = "sqlite, create, database, db"), Category = "DB Connections")
+	static FString HelperSQLiteCreateDB(const FString DB_Path, const FString DB_Name);
 
 };

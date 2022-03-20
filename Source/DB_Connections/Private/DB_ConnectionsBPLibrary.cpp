@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "DB_ConnectionsBPLibrary.h"
+#include "DB_Connections.h"
 
 // Async Functions.
 #include "Async/Async.h"
@@ -8,8 +9,6 @@
 
 // Connection Functions.
 #include "SQLiteDatabase.h"
-
-#include "DB_Connections.h"
 
 UDB_ConnectionsBPLibrary::UDB_ConnectionsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -174,4 +173,85 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InS
     }
 
     return false;
+}
+
+bool UDB_ConnectionsBPLibrary::SQLiteWriteValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName, const FString InValue)
+{
+    if (InSQLiteConnection->IsValidLowLevel() == true)
+    {
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
+        {
+            const FString WriteQuery = TEXT("INSERT INTO ") + TableName + TEXT(" (") + ColumnName + TEXT(") VALUES ('") + InValue + TEXT("')");
+            
+            FSQLitePreparedStatement StatementWriteValue;
+            StatementWriteValue.Reset();
+            StatementWriteValue.Create(*InSQLiteConnection->SQLiteDB, *WriteQuery, ESQLitePreparedStatementFlags::Persistent);
+            StatementWriteValue.SetBindingValueByName(*ColumnName, *InValue);
+            StatementWriteValue.Execute();
+
+            StatementWriteValue.ClearBindings();
+            StatementWriteValue.Destroy();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return false;
+}
+
+bool UDB_ConnectionsBPLibrary::SQLiteCreateColumn(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName)
+{
+    if (InSQLiteConnection->IsValidLowLevel() == true)
+    {
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
+        {
+            const FString QueryCreateColumn = TEXT("ALTER TABLE ") + TableName + TEXT(" ADD ") + ColumnName + TEXT(" TEXT");
+            
+            FSQLitePreparedStatement StatementCreateColumn;
+            StatementCreateColumn.Reset();
+            StatementCreateColumn.Create(*InSQLiteConnection->SQLiteDB, *QueryCreateColumn, ESQLitePreparedStatementFlags::Persistent);
+            StatementCreateColumn.Execute();
+
+            StatementCreateColumn.ClearBindings();
+            StatementCreateColumn.Destroy();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return false;
+}
+
+bool UDB_ConnectionsBPLibrary::SQLiteCreateTable(USQLite_Connection* InSQLiteConnection, const FString TableName)
+{
+    if (InSQLiteConnection->IsValidLowLevel() == true)
+    {
+        if (InSQLiteConnection->SQLiteDB->IsValid() == true)
+        {
+            const FString QueryCreateTable = TEXT("CREATE TABLE IF NOT EXISTS ") + TableName + TEXT(" (id INTEGER PRIMARY KEY)");
+            
+            FSQLitePreparedStatement StatementCreateTable;
+            StatementCreateTable.Reset();
+            StatementCreateTable.Create(*InSQLiteConnection->SQLiteDB, *QueryCreateTable, ESQLitePreparedStatementFlags::Persistent);
+            StatementCreateTable.Execute();
+
+            StatementCreateTable.ClearBindings();
+            StatementCreateTable.Destroy();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return false;
+}
+
+FString UDB_ConnectionsBPLibrary::HelperSQLiteCreateDB(const FString DB_Path, const FString DB_Name)
+{
+    return TEXT("sqlite3 ") + DB_Path + DB_Name + TEXT(".db") + TEXT(" \"VACCUUM;\"");
 }

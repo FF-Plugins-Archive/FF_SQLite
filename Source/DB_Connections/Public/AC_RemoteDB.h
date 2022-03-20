@@ -12,6 +12,17 @@
 #include "AC_RemoteDB.generated.h"
 
 
+UCLASS(BlueprintType)
+class DB_CONNECTIONS_API URemoteDB_Connection : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	FRemoteDatabaseConnection* RemoteDBConnection;
+	FRemoteDataBaseRecordSet* RemoteDBRecordSet;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DB_CONNECTIONS_API UAC_RemoteDB : public UActorComponent
 {
@@ -25,15 +36,16 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	FRemoteDatabaseConnection* RemoteDBConnection;
-	FRemoteDataBaseRecordSet* RemoteDBRecordSet;
-
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Open Remote Database", ToolTip = "Exprimental !", Keywords = "remote,database,open"), Category = "DB Connections")
-	virtual bool RemoteDataBaseOpen(const FString RemoteIP, const FString ConnectionString, const FString RemoteConnectionStringOverride);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RemoteDB Open", ToolTip = "Description.", Keywords = "remote, database, db, open"), Category = "DB Connections")
+	virtual bool RemoteDataBaseOpen(const FString RemoteIP, const FString ConnectionString, const FString StringOverride, URemoteDB_Connection*& OutConnection);
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RemoteDB Close", ToolTip = "Description.", Keywords = "remote, database, db, close"), Category = "DB Connections")
+	virtual void RemoteDataBaseClose(URemoteDB_Connection* InConnection);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RemoteDB Execute", ToolTip = "Description.", Keywords = "remote, database, db, execute"), Category = "DB Connections")
+	virtual bool RemoteDatabaseExecute(URemoteDB_Connection* InConnection, const FString ExecutionString);
 };

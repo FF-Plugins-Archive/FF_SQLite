@@ -35,7 +35,30 @@ void UAC_RemoteDB::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// ...
 }
 
-bool UAC_RemoteDB::RemoteDataBaseOpen(const FString RemoteIP, const FString ConnectionString, const FString RemoteConnectionStringOverride)
+bool UAC_RemoteDB::RemoteDataBaseOpen(const FString RemoteIP, const FString ConnectionString, const FString StringOverride, URemoteDB_Connection*& OutConnection)
 {
-	return UAC_RemoteDB::RemoteDBConnection->Open(*RemoteIP, *ConnectionString, *RemoteConnectionStringOverride);
+	URemoteDB_Connection* DB_Connection = NewObject<URemoteDB_Connection>();
+	OutConnection = DB_Connection;
+	return DB_Connection->RemoteDBConnection->Open(*RemoteIP, *ConnectionString, *StringOverride);
+}
+
+void UAC_RemoteDB::RemoteDataBaseClose(URemoteDB_Connection* InConnection)
+{
+	if (InConnection != nullptr)
+	{
+		InConnection->RemoteDBConnection->Close();
+	}
+}
+
+bool UAC_RemoteDB::RemoteDatabaseExecute(URemoteDB_Connection* InConnection, const FString ExecutionString)
+{
+	if (InConnection != nullptr)
+	{
+		return InConnection->RemoteDBConnection->Execute(*ExecutionString);
+	}
+	
+	else
+	{
+		return false;
+	}
 }
