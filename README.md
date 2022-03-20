@@ -1,13 +1,23 @@
 # DB_Connections
 
+- SQLite Open
+- SQLite Close
+
 - SQLite Get Column Names
 - SQLite Get Single Row Value
 - SQLite Get All Row Values
 - SQLite Get All Table Contents
+
+- SQLite Write Value
+- SQLite Create Column
+- SQLite Create Table
+- Helper SQLite Create Database
+
+- SQLite updated to last version.
 --------------------------------------------------------------------------------------------
 STATE:
 - Exprimental
-- RemoteDatabase is not finished, yet.
+- RemoteDatabase is not finished. Personally I am not familiar with databases and socket connections. So, I can not finish it without help. I integrated it for training purpose. For products, I suggest OBDC plugins.
 - Look at "Issues" before using it !
 
 USED PLUGINS and DEPENDENCIES
@@ -18,7 +28,6 @@ USED PLUGINS and DEPENDENCIES
 
 ROADMAP
 - Finishing RemoteDatabase functions.
-- Creating "Write" functions for SQLite.
 
 PURPOSE:
 - This plugin created for "our" startup's internal projects !
