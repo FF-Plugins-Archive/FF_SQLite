@@ -17,7 +17,7 @@
 --------------------------------------------------------------------------------------------
 STATE:
 - Exprimental
-- RemoteDatabase is not finished. Personally I am not familiar with databases and socket connections. So, I can not finish it without help. I integrated it for training purpose. For products, I suggest OBDC plugins.
+- RemoteDatabase is not finished. Personally I am not familiar with databases and socket connections. So, I can not finish it without help. I integrated it for training purpose. For products, I suggest ODBC plugins.
 - Look at "Issues" before using it !
 
 USED PLUGINS and DEPENDENCIES
@@ -31,7 +31,7 @@ ROADMAP
 
 PURPOSE:
 - This plugin created for "our" startup's internal projects !
-- So, we will update it with "our needs" and rightnow we have other project priorities.
+- So, we will update it with "our needs" and right now we have other project priorities.
 
 UPDATES:
 - When UE5 finally (not preview ones) out, we are going to update it after figuring out new plugins.
