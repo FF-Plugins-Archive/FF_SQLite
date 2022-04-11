@@ -57,7 +57,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteOpen(const FString DB_Path, TEnumAsByte<SQL
 
 void UDB_ConnectionsBPLibrary::SQLiteClose(USQLite_Connection* InSQLiteConnection)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         InSQLiteConnection->SQLiteDB->Close();
         delete InSQLiteConnection->SQLiteDB;
@@ -66,7 +66,7 @@ void UDB_ConnectionsBPLibrary::SQLiteClose(USQLite_Connection* InSQLiteConnectio
 
 bool UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(USQLite_Connection* InSQLiteConnection, const FString TableName, TArray<FString>& OutColumnsNames)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
@@ -90,7 +90,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(USQLite_Connection* InSQLit
 
 bool UDB_ConnectionsBPLibrary::SQLiteGetSingleRowValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
@@ -117,7 +117,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetSingleRowValue(USQLite_Connection* InSQL
 
 bool UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(USQLite_Connection* InSQLiteConnection, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
@@ -145,7 +145,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(USQLite_Connection* InSQLit
 
 bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
@@ -177,7 +177,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InS
 
 bool UDB_ConnectionsBPLibrary::SQLiteWriteValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName, const FString InValue)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
@@ -203,7 +203,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteWriteValue(USQLite_Connection* InSQLiteConn
 
 bool UDB_ConnectionsBPLibrary::SQLiteCreateColumn(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
@@ -228,7 +228,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteCreateColumn(USQLite_Connection* InSQLiteCo
 
 bool UDB_ConnectionsBPLibrary::SQLiteCreateTable(USQLite_Connection* InSQLiteConnection, const FString TableName)
 {
-    if (InSQLiteConnection->IsValidLowLevel() == true)
+    if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
