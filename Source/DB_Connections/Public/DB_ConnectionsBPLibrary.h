@@ -38,7 +38,7 @@ public:
 	FSQLiteDatabase* SQLiteDB;
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum SQLiteOpenType
 {
 	ReadOnly			UMETA(DisplayName = "ReadOnly"),
