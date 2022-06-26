@@ -38,23 +38,24 @@ void UAC_RemoteDB::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 bool UAC_RemoteDB::RemoteDataBaseOpen(const FString RemoteIP, const FString ConnectionString, const FString StringOverride, URemoteDB_Connection*& OutConnection)
 {
 	URemoteDB_Connection* DB_Connection = NewObject<URemoteDB_Connection>();
+	DB_Connection->RemoteDBConnection = FRemoteDatabaseConnection::FRemoteDatabaseConnection();
 	OutConnection = DB_Connection;
-	return DB_Connection->RemoteDBConnection->Open(*RemoteIP, *ConnectionString, *StringOverride);
+	return DB_Connection->RemoteDBConnection.Open(*RemoteIP, *ConnectionString, *StringOverride);
 }
 
 void UAC_RemoteDB::RemoteDataBaseClose(URemoteDB_Connection* InConnection)
 {
-	if (InConnection != nullptr)
+	if (IsValid(InConnection) == true)
 	{
-		InConnection->RemoteDBConnection->Close();
+		InConnection->RemoteDBConnection.Close();
 	}
 }
 
 bool UAC_RemoteDB::RemoteDatabaseExecute(URemoteDB_Connection* InConnection, const FString ExecutionString)
 {
-	if (InConnection != nullptr)
+	if (IsValid(InConnection) == true)
 	{
-		return InConnection->RemoteDBConnection->Execute(*ExecutionString);
+		return InConnection->RemoteDBConnection.Execute(*ExecutionString);
 	}
 	
 	else

@@ -19,7 +19,7 @@ class DB_CONNECTIONS_API URemoteDB_Connection : public UObject
 
 public:
 
-	FRemoteDatabaseConnection* RemoteDBConnection;
+	FRemoteDatabaseConnection RemoteDBConnection;
 	FRemoteDataBaseRecordSet* RemoteDBRecordSet;
 };
 
