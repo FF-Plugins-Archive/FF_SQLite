@@ -40,8 +40,7 @@ public class DB_Connections : ModuleRules
 				"SlateCore",
 				"SQLiteSupport",
 				"SQLiteCore",
-				"DatabaseSupport",
-				"RemoteDatabaseSupport",
+				"DatabaseSupport"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
