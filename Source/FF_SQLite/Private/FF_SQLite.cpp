@@ -1,16 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "DB_Connections.h"
+#include "FF_SQLite.h"
 
-#define LOCTEXT_NAMESPACE "FDB_ConnectionsModule"
+#define LOCTEXT_NAMESPACE "FFF_SQLiteModule"
 
-void FDB_ConnectionsModule::StartupModule()
+void FFF_SQLiteModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	
 }
 
-void FDB_ConnectionsModule::ShutdownModule()
+void FFF_SQLiteModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
@@ -19,4 +19,4 @@ void FDB_ConnectionsModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FDB_ConnectionsModule, DB_Connections)
+IMPLEMENT_MODULE(FFF_SQLiteModule, FF_SQLite)

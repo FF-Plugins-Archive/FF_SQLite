@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "DB_Connections",
+	"FriendlyName": "FF_SQLite",
 	"Description": "",
 	"Category": "Frozen Forest",
 	"CreatedBy": "Frozen Forest Reality Technologies",
@@ -16,7 +16,7 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "DB_Connections",
+			"Name": "FF_SQLite",
 			"Type": "Runtime",
 			"LoadingPhase": "PreLoadingScreen"
 		}

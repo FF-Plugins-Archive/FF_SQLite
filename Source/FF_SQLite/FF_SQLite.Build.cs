@@ -1,10 +1,12 @@
 // Some copyright should be here...
 
+using System;
+using System.IO;
 using UnrealBuildTool;
 
-public class DB_Connections : ModuleRules
+public class FF_SQLite : ModuleRules
 {
-	public DB_Connections(ReadOnlyTargetRules Target) : base(Target)
+	public FF_SQLite(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -14,14 +16,12 @@ public class DB_Connections : ModuleRules
 			}
 			);
 				
-		
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
 			);
-			
-		
+
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -29,8 +29,7 @@ public class DB_Connections : ModuleRules
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
-			
-		
+
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -38,14 +37,14 @@ public class DB_Connections : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"SQLiteSupport",
-				"SQLiteCore",
-				"DatabaseSupport"
+				"Projects",
+                "SQLiteSupport",
+                "SQLiteCore",
+                "DatabaseSupport"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-		
-		
+
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{

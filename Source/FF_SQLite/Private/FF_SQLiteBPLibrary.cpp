@@ -1,48 +1,41 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "DB_ConnectionsBPLibrary.h"
-#include "DB_Connections.h"
+#include "FF_SQLiteBPLibrary.h"
+#include "FF_SQLite.h"
 
-// Async Functions.
-#include "Async/Async.h"
-#include "Async/IAsyncProgress.h"
-
-// Connection Functions.
-#include "SQLiteDatabase.h"
-
-UDB_ConnectionsBPLibrary::UDB_ConnectionsBPLibrary(const FObjectInitializer& ObjectInitializer)
+UFF_SQLiteBPLibrary::UFF_SQLiteBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
 
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteOpen(const FString DB_Path, TEnumAsByte<SQLiteOpenType> OpenType, USQLite_Connection*& OutSQLiteConnection)
+bool UFF_SQLiteBPLibrary::SQLiteOpen(const FString DB_Path, ESQLiteOpenType OpenType, USQLite_Connection*& OutSQLiteConnection)
 {
     ESQLiteDatabaseOpenMode OpenMode = ESQLiteDatabaseOpenMode::ReadOnly;
 
     switch (OpenType)
     {
-    case ReadOnly:
+    case ESQLiteOpenType::ReadOnly:
         OpenMode = ESQLiteDatabaseOpenMode::ReadOnly;
         break;
 
-    case ReadWrite:
+    case ESQLiteOpenType::ReadWrite:
         OpenMode = ESQLiteDatabaseOpenMode::ReadWrite;
         break;
 
-    case ReadWriteCreate:
+    case ESQLiteOpenType::ReadWriteCreate:
         OpenMode = ESQLiteDatabaseOpenMode::ReadWriteCreate;
         break;
-    
+
     default:
         OpenMode = ESQLiteDatabaseOpenMode::ReadOnly;
         break;
     }
-    
+
     USQLite_Connection* SQLiteConnection = NewObject<USQLite_Connection>();
     SQLiteConnection->SQLiteDB = new FSQLiteDatabase();
     SQLiteConnection->SQLiteDB->Open(*DB_Path, OpenMode);
-    
+
     if (SQLiteConnection->SQLiteDB->IsValid() == true)
     {
         OutSQLiteConnection = SQLiteConnection;
@@ -55,7 +48,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteOpen(const FString DB_Path, TEnumAsByte<SQL
     }
 }
 
-void UDB_ConnectionsBPLibrary::SQLiteClose(USQLite_Connection* InSQLiteConnection)
+void UFF_SQLiteBPLibrary::SQLiteClose(USQLite_Connection* InSQLiteConnection)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
@@ -64,7 +57,7 @@ void UDB_ConnectionsBPLibrary::SQLiteClose(USQLite_Connection* InSQLiteConnectio
     }
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(USQLite_Connection* InSQLiteConnection, const FString TableName, TArray<FString>& OutColumnsNames)
+bool UFF_SQLiteBPLibrary::SQLiteGetColumnsNames(USQLite_Connection* InSQLiteConnection, const FString TableName, TArray<FString>& OutColumnsNames)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
@@ -88,7 +81,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(USQLite_Connection* InSQLit
     return false;
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteGetSingleRowValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue)
+bool UFF_SQLiteBPLibrary::SQLiteGetSingleRowValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString IDColumn, const FString IDIndex, const FString ColumnName, FString& ColumnValue)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
@@ -115,7 +108,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetSingleRowValue(USQLite_Connection* InSQL
     return false;
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(USQLite_Connection* InSQLiteConnection, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues)
+bool UFF_SQLiteBPLibrary::SQLiteGetAllRowValues(USQLite_Connection* InSQLiteConnection, const FString Query, const FString ColumnName, TArray<FString>& ColumnValues)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
@@ -143,7 +136,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(USQLite_Connection* InSQLit
     return false;
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString QueryCondition, TMap<FString, FRowValuesStruct>& TableContents)
+bool UFF_SQLiteBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString QueryCondition, TMap<FString, FSQLiteRowValuesStruct>& TableContents)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
@@ -154,13 +147,13 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InS
 
             // Get column names.
             TArray<FString> ColumnNames;
-            UDB_ConnectionsBPLibrary::SQLiteGetColumnsNames(InSQLiteConnection, TableName, ColumnNames);
+            UFF_SQLiteBPLibrary::SQLiteGetColumnsNames(InSQLiteConnection, TableName, ColumnNames);
 
-            FRowValuesStruct STR_RowValues;
+            FSQLiteRowValuesStruct STR_RowValues;
             for (int32 ColumnIndex = 0; ColumnIndex < ColumnNames.Num(); ColumnIndex++)
             {
                 TArray<FString> RowValues;
-                UDB_ConnectionsBPLibrary::SQLiteGetAllRowValues(InSQLiteConnection, Query, ColumnNames[ColumnIndex], RowValues);
+                UFF_SQLiteBPLibrary::SQLiteGetAllRowValues(InSQLiteConnection, Query, ColumnNames[ColumnIndex], RowValues);
                 STR_RowValues.ColumnValues = RowValues;
 
                 TableContents.Add(ColumnNames[ColumnIndex], STR_RowValues);
@@ -175,14 +168,14 @@ bool UDB_ConnectionsBPLibrary::SQLiteGetAllTableContents(USQLite_Connection* InS
     return false;
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteWriteValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName, const FString InValue)
+bool UFF_SQLiteBPLibrary::SQLiteWriteValue(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName, const FString InValue)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
             const FString WriteQuery = TEXT("INSERT INTO ") + TableName + TEXT(" (") + ColumnName + TEXT(") VALUES ('") + InValue + TEXT("')");
-            
+
             FSQLitePreparedStatement StatementWriteValue;
             StatementWriteValue.Reset();
             StatementWriteValue.Create(*InSQLiteConnection->SQLiteDB, *WriteQuery, ESQLitePreparedStatementFlags::Persistent);
@@ -201,14 +194,14 @@ bool UDB_ConnectionsBPLibrary::SQLiteWriteValue(USQLite_Connection* InSQLiteConn
     return false;
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteCreateColumn(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName)
+bool UFF_SQLiteBPLibrary::SQLiteCreateColumn(USQLite_Connection* InSQLiteConnection, const FString TableName, const FString ColumnName)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
             const FString QueryCreateColumn = TEXT("ALTER TABLE ") + TableName + TEXT(" ADD ") + ColumnName + TEXT(" TEXT");
-            
+
             FSQLitePreparedStatement StatementCreateColumn;
             StatementCreateColumn.Reset();
             StatementCreateColumn.Create(*InSQLiteConnection->SQLiteDB, *QueryCreateColumn, ESQLitePreparedStatementFlags::Persistent);
@@ -226,14 +219,14 @@ bool UDB_ConnectionsBPLibrary::SQLiteCreateColumn(USQLite_Connection* InSQLiteCo
     return false;
 }
 
-bool UDB_ConnectionsBPLibrary::SQLiteCreateTable(USQLite_Connection* InSQLiteConnection, const FString TableName)
+bool UFF_SQLiteBPLibrary::SQLiteCreateTable(USQLite_Connection* InSQLiteConnection, const FString TableName)
 {
     if (IsValid(InSQLiteConnection) == true)
     {
         if (InSQLiteConnection->SQLiteDB->IsValid() == true)
         {
             const FString QueryCreateTable = TEXT("CREATE TABLE IF NOT EXISTS ") + TableName + TEXT(" (id INTEGER PRIMARY KEY)");
-            
+
             FSQLitePreparedStatement StatementCreateTable;
             StatementCreateTable.Reset();
             StatementCreateTable.Create(*InSQLiteConnection->SQLiteDB, *QueryCreateTable, ESQLitePreparedStatementFlags::Persistent);
@@ -251,7 +244,7 @@ bool UDB_ConnectionsBPLibrary::SQLiteCreateTable(USQLite_Connection* InSQLiteCon
     return false;
 }
 
-FString UDB_ConnectionsBPLibrary::HelperSQLiteCreateDB(const FString DB_Path, const FString DB_Name)
+FString UFF_SQLiteBPLibrary::HelperSQLiteCreateDB(const FString DB_Path, const FString DB_Name)
 {
     return TEXT("sqlite3 ") + DB_Path + DB_Name + TEXT(".db") + TEXT(" \"VACCUUM;\"");
 }

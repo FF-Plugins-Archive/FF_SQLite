@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-class FDB_ConnectionsModule : public IModuleInterface
+class FFF_SQLiteModule : public IModuleInterface
 {
 public:
 
